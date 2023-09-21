@@ -18,7 +18,6 @@ import java.util.Optional;
 public class TodoController {
     @Autowired // bu anotasyon program çalıştığında kodu analiz edecek ve repository'i gerekli nesne ile eşleştirecek.
     private ITodoRepository todoRepository; // database işlemlerini yapabilmek için repository nesnesi oluşturdum.
-
     @GetMapping("/todos") // http:localhost:8080/api/v1/todos
     // Bütün todoları okumak için oluşturuldu
     public ResponseEntity<?> getAllTodos() {
@@ -32,7 +31,6 @@ public class TodoController {
             return new ResponseEntity<>("No todos available.", HttpStatus.NOT_FOUND);
         }
     }
-
     @PostMapping("/create-todo") // http:localhost:8080/api/v1/create-todo
     // Todoya ekleme yapmak için oluşturuldu
     public ResponseEntity<?> createTodo(@RequestBody TodoDTO todo) {
@@ -57,9 +55,8 @@ public class TodoController {
             return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
         }
     }
-
     @PutMapping("update-todo/{id}") // http:localhost:8080/api/v1/update-todo/{id}
-    // gönderilen id değerine sahip todoyu okumak için oluşturuldu
+    // gönderilen id değerine sahip todoyu güncellemek için oluşturuldu
     public ResponseEntity<?> updateTodoById(@PathVariable("id") String id, @RequestBody TodoDTO todo) {
         Optional<TodoDTO> todoOptional = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
         // eğer to do varsa güncellemeler yapılacak ve güncellenen to do OK kodu ile birlikte döndürülecek.
@@ -75,6 +72,17 @@ public class TodoController {
         // eğer to do yoksa NOT_FOUND kodu ile birlikte belirtilen id değerine sahip bir to do olmadığını belirten bir mesaj döndürülür.
         else {
             return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
+        }
+    }
+    @DeleteMapping("delete-todo/{id}") // http:localhost:8080/api/v1/delete-todo/{id}
+    // gönderilen id değerine sahip todoyu silmek için oluşturuldu
+    public ResponseEntity<?> deleteTodoById(@PathVariable String id){
+        try{
+            todoRepository.deleteById(id); // girilem id değerine sahip todoyu silindi
+            return new ResponseEntity<>("Successfully deleted", HttpStatus.OK); // todonun silindiğini belirten mesaj OK koduyla gönderildi.
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }
 }
