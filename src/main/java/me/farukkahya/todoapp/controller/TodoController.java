@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+import java.util.Date;
 import java.util.List;
 
 @RestController // bu anotasyonu bu sınıfın bir rest controller olduğunu belirtmek için kullandım.
@@ -27,6 +29,18 @@ public class TodoController {
         // todos listesi boş işe hiç to do olmadığını belirten bir mesaj döndürecek.
         else {
             return new ResponseEntity<>("No todos available.", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/create-todo") // http:localhost:8080/api/v1/create-todo
+    // Todoya ekleme yapmak için oluşturuldu
+    public ResponseEntity<?> createTodo(@RequestBody TodoDTO todo) {
+        try {
+            todo.setCreated_at(new Date(System.currentTimeMillis())); // todoya oluşturulma tarihi atandı
+            todoRepository.save(todo); // to do kaydedildi
+            return new ResponseEntity<TodoDTO>(todo, HttpStatus.CREATED); // oluşturılan to do elemanı ve CREATED kodu dönderildi
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }
 }
