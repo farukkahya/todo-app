@@ -1,5 +1,6 @@
 package me.farukkahya.todoapp.models;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,11 @@ import java.util.Date;
 public class TodoDTO { // todoların modeli
     @Id
     private String id;
+    @NotNull(message = "This field cannot be null.")
     private String todo;
+    @NotNull(message = "This field cannot be null.")
     private String description;
+    @NotNull(message = "This field cannot be null.")
     private boolean completed;
     private Date created_at;
     private Date updated_at;
