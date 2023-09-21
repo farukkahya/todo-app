@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @RestController // bu anotasyonu bu sınıfın bir rest controller olduğunu belirtmek için kullandım.
 @RequestMapping("/api/v1")
@@ -41,6 +42,19 @@ public class TodoController {
             return new ResponseEntity<TodoDTO>(todo, HttpStatus.CREATED); // oluşturılan to do elemanı ve CREATED kodu dönderildi
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
+        }
+    }
+    @GetMapping("todos/{id}") // http:localhost:8080/api/v1/todos/{id}
+    // gönderilen id değerine sahip todoyu okumak için oluşturuldu
+    public ResponseEntity<?> getTodoById(@PathVariable("id") String id) {
+        Optional<TodoDTO> todoOptional = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
+        // eğer to do varsa OK kodu ile birlikte döndürülür.
+        if (todoOptional.isPresent()) {
+            return new ResponseEntity<TodoDTO>(todoOptional.get(), HttpStatus.OK);
+        }
+        // eğer to do yoksa NOT_FOUND kodu ile birlikte belirtilen id değerine sahip bir to do olmadığını belirten bir mesaj döndürülür.
+        else {
+            return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
         }
     }
 }
