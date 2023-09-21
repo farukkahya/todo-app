@@ -25,7 +25,7 @@ public class TodoController {
         List<TodoDTO> todos = todoRepository.findAll(); // tüm todoları tutmak için bir TodoDTO listesi oluşturdum.
         // eğer todos listesi boş değil ise listenin kendisini ve 'OK' durum kodunu döndürecek.
         if (!todos.isEmpty()) {
-            return new ResponseEntity<List<TodoDTO>>(todos, HttpStatus.OK);
+            return new ResponseEntity<>(todos, HttpStatus.OK);
         }
         // todos listesi boş işe hiç to do olmadığını belirten bir mesaj döndürecek.
         else {
@@ -39,7 +39,7 @@ public class TodoController {
         try {
             todo.setCreated_at(new Date(System.currentTimeMillis())); // todoya oluşturulma tarihi atandı
             todoRepository.save(todo); // to do kaydedildi
-            return new ResponseEntity<TodoDTO>(todo, HttpStatus.CREATED); // oluşturılan to do elemanı ve CREATED kodu dönderildi
+            return new ResponseEntity<>(todo, HttpStatus.CREATED); // oluşturılan to do elemanı ve CREATED kodu dönderildi
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
@@ -50,7 +50,27 @@ public class TodoController {
         Optional<TodoDTO> todoOptional = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
         // eğer to do varsa OK kodu ile birlikte döndürülür.
         if (todoOptional.isPresent()) {
-            return new ResponseEntity<TodoDTO>(todoOptional.get(), HttpStatus.OK);
+            return new ResponseEntity<>(todoOptional.get(), HttpStatus.OK);
+        }
+        // eğer to do yoksa NOT_FOUND kodu ile birlikte belirtilen id değerine sahip bir to do olmadığını belirten bir mesaj döndürülür.
+        else {
+            return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("update-todo/{id}") // http:localhost:8080/api/v1/update-todo/{id}
+    // gönderilen id değerine sahip todoyu okumak için oluşturuldu
+    public ResponseEntity<?> updateTodoById(@PathVariable("id") String id, @RequestBody TodoDTO todo) {
+        Optional<TodoDTO> todoOptional = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
+        // eğer to do varsa güncellemeler yapılacak ve güncellenen to do OK kodu ile birlikte döndürülecek.
+        if (todoOptional.isPresent()) {
+            TodoDTO todoToSave = todoOptional.get(); // güncellenecek to do
+            todoToSave.setCompleted(todo.isCompleted());
+            todoToSave.setTodo(todo.getTodo() != null ? todo.getTodo() : todoToSave.getTodo());
+            todoToSave.setDescription(todo.getDescription() != null ? todo.getDescription() : todoToSave.getDescription());
+            todoToSave.setUpdated_at(new Date(System.currentTimeMillis()));
+            todoRepository.save(todoToSave); // to do güncellendi
+            return new ResponseEntity<>(todoToSave, HttpStatus.OK);
         }
         // eğer to do yoksa NOT_FOUND kodu ile birlikte belirtilen id değerine sahip bir to do olmadığını belirten bir mesaj döndürülür.
         else {
