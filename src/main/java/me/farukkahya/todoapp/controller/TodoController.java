@@ -1,7 +1,10 @@
 package me.farukkahya.todoapp.controller;
 
+import jakarta.validation.ConstraintViolationException;
+import me.farukkahya.todoapp.exception.TodoCollectionException;
 import me.farukkahya.todoapp.models.TodoDTO;
 import me.farukkahya.todoapp.repositories.ITodoRepository;
+import me.farukkahya.todoapp.services.ITodoServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,8 @@ import java.util.Optional;
 public class TodoController {
     @Autowired // bu anotasyon program çalıştığında kodu analiz edecek ve repository'i gerekli nesne ile eşleştirecek.
     private ITodoRepository todoRepository; // database işlemlerini yapabilmek için repository nesnesi oluşturdum.
+    @Autowired
+    private ITodoServices todoServices;
     @GetMapping("/todos") // http:localhost:8080/api/v1/todos
     // Bütün todoları okumak için oluşturuldu
     public ResponseEntity<?> getAllTodos() {
@@ -35,11 +40,12 @@ public class TodoController {
     // Todoya ekleme yapmak için oluşturuldu
     public ResponseEntity<?> createTodo(@RequestBody TodoDTO todo) {
         try {
-            todo.setCreated_at(new Date(System.currentTimeMillis())); // todoya oluşturulma tarihi atandı
-            todoRepository.save(todo); // to do kaydedildi
+            todoServices.createTodo(todo); // to do ekleme işlemi
             return new ResponseEntity<>(todo, HttpStatus.CREATED); // oluşturılan to do elemanı ve CREATED kodu dönderildi
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
+        } catch (ConstraintViolationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
+        }catch (TodoCollectionException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }
     @GetMapping("todos/{id}") // http:localhost:8080/api/v1/todos/{id}
