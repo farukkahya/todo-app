@@ -16,14 +16,16 @@ import java.util.Optional;
 public class TodoServicesImpl implements ITodoServices {
 
     @Autowired
-    private ITodoRepository todoRepository;
+    private ITodoRepository todoRepository; // database işlemlerini yapabilmek için repository nesnesi oluşturdum.
     @Override
     public void createTodo(TodoDTO todo) throws ConstraintViolationException,TodoCollectionException {
         Optional<TodoDTO> todoOptional = todoRepository.findByTodo(todo.getTodo());
+        // aynı isme sahip bir to do varsa  hata göndericek yoksa ekleme yapacak.
         if (todoOptional.isPresent()){
             throw new TodoCollectionException(TodoCollectionException.TodoAlreadyExists());
         }else {
-            todo.setCreated_at(new Date(System.currentTimeMillis()));
+            todo.setCreated_at(new Date(System.currentTimeMillis())); // kayıt etmeden önce oluşturulma tarihi eklendi.
+            todoRepository.save(todo); // to do kaydedildi.
         }
     }
 }
