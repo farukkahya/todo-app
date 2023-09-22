@@ -6,7 +6,7 @@ public class TodoCollectionException extends Exception{
      */
     private static final long serialVersionUID = 1L;
 
-    private TodoCollectionException(String message) {
+    public TodoCollectionException(String message) {
         super(message);
     }
     public static String NotFoundException(String id){
