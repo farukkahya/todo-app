@@ -72,9 +72,9 @@ public class TodoController {
     // gönderilen id değerine sahip todoyu silmek için oluşturuldu
     public ResponseEntity<?> deleteTodoById(@PathVariable String id) {
         try {
-            todoRepository.deleteById(id); // girilem id değerine sahip todoyu silindi
+            todoServices.deleteTodoById(id); // girilem id değerine sahip todoyu silindi
             return new ResponseEntity<>("Successfully deleted", HttpStatus.OK); // todonun silindiğini belirten mesaj OK koduyla gönderildi.
-        } catch (Exception e) {
+        } catch (TodoCollectionException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }

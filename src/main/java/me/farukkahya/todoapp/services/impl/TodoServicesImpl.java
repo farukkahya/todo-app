@@ -70,4 +70,14 @@ public class TodoServicesImpl implements ITodoServices {
             throw new TodoCollectionException(TodoCollectionException.NotFoundException(id));
         }
     }
+
+    @Override
+    public void deleteTodoById(String id) throws TodoCollectionException {
+        Optional<TodoDTO> optionalTodo = todoRepository.findById(id);
+        if (optionalTodo.isEmpty()){
+            throw new TodoCollectionException(TodoCollectionException.NotFoundException(id));
+        }else{
+            todoRepository.deleteById(id);
+        }
+    }
 }
