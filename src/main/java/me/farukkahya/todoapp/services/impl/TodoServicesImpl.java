@@ -50,4 +50,24 @@ public class TodoServicesImpl implements ITodoServices {
             return optionalTodo.get(); // eğer to do varsa döndürülür.
         }
     }
+
+    @Override
+    public void updateTodoById(String id, TodoDTO todo) throws TodoCollectionException {
+        Optional<TodoDTO> todoWithID = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
+        Optional<TodoDTO> todoWithName = todoRepository.findByTodo(todo.getTodo()); // aynı isimde to do var mı kontrol etmek için
+        // eğer to do varsa güncellemeler yapılacak ve güncellenen to do OK kodu ile birlikte döndürülecek.
+        if (todoWithID.isPresent()){
+            if (todoWithName.isPresent() && !todoWithName.get().getId().equals(id)){ // aynı isimde farklı bir id değerine sahip to do varsa hata dönderecek.
+                throw new TodoCollectionException(TodoCollectionException.TodoAlreadyExists());
+            }
+            TodoDTO todoToUpdate = todoWithID.get();// güncellenecek to do
+            todoToUpdate.setTodo(todo.getTodo());
+            todoToUpdate.setDescription(todo.getDescription());
+            todoToUpdate.setCompleted(todo.isCompleted());
+            todoToUpdate.setUpdated_at(new Date(System.currentTimeMillis()));
+            todoRepository.save(todoToUpdate); // to do güncellendi
+        }else{
+            throw new TodoCollectionException(TodoCollectionException.NotFoundException(id));
+        }
+    }
 }

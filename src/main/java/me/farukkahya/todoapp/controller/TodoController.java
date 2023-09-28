@@ -58,20 +58,13 @@ public class TodoController {
     @PutMapping("update-todo/{id}") // http:localhost:8080/api/v1/update-todo/{id}
     // gönderilen id değerine sahip todoyu güncellemek için oluşturuldu
     public ResponseEntity<?> updateTodoById(@PathVariable("id") String id, @RequestBody TodoDTO todo) {
-        Optional<TodoDTO> todoOptional = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
-        // eğer to do varsa güncellemeler yapılacak ve güncellenen to do OK kodu ile birlikte döndürülecek.
-        if (todoOptional.isPresent()) {
-            TodoDTO todoToSave = todoOptional.get(); // güncellenecek to do
-            todoToSave.setCompleted(todo.isCompleted());
-            todoToSave.setTodo(todo.getTodo() != null ? todo.getTodo() : todoToSave.getTodo());
-            todoToSave.setDescription(todo.getDescription() != null ? todo.getDescription() : todoToSave.getDescription());
-            todoToSave.setUpdated_at(new Date(System.currentTimeMillis()));
-            todoRepository.save(todoToSave); // to do güncellendi
-            return new ResponseEntity<>(todoToSave, HttpStatus.OK);
-        }
-        // eğer to do yoksa NOT_FOUND kodu ile birlikte belirtilen id değerine sahip bir to do olmadığını belirten bir mesaj döndürülür.
-        else {
-            return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
+        try {
+            todoServices.updateTodoById(id, todo); // to do güncelleme işlemi
+            return new ResponseEntity<>("Update to do with id " + id, HttpStatus.OK);
+        } catch (ConstraintViolationException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
+        } catch (TodoCollectionException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }
 
