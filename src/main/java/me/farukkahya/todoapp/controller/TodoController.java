@@ -23,19 +23,15 @@ public class TodoController {
     private ITodoRepository todoRepository; // database işlemlerini yapabilmek için repository nesnesi oluşturdum.
     @Autowired
     private ITodoServices todoServices;
+
     @GetMapping("/todos") // http:localhost:8080/api/v1/todos
     // Bütün todoları okumak için oluşturuldu
     public ResponseEntity<?> getAllTodos() {
-        List<TodoDTO> todos = todoRepository.findAll(); // tüm todoları tutmak için bir TodoDTO listesi oluşturdum.
+        List<TodoDTO> todos = todoServices.getAllTodos(); // tüm todoları tutmak için bir TodoDTO listesi oluşturdum.
         // eğer todos listesi boş değil ise listenin kendisini ve 'OK' durum kodunu döndürecek.
-        if (!todos.isEmpty()) {
-            return new ResponseEntity<>(todos, HttpStatus.OK);
-        }
-        // todos listesi boş işe hiç to do olmadığını belirten bir mesaj döndürecek.
-        else {
-            return new ResponseEntity<>("No todos available.", HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(todos, !todos.isEmpty() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
+
     @PostMapping("/create-todo") // http:localhost:8080/api/v1/create-todo
     // Todoya ekleme yapmak için oluşturuldu
     public ResponseEntity<?> createTodo(@RequestBody TodoDTO todo) {
@@ -44,23 +40,21 @@ public class TodoController {
             return new ResponseEntity<>(todo, HttpStatus.CREATED); // oluşturılan to do elemanı ve CREATED kodu dönderildi
         } catch (ConstraintViolationException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
-        }catch (TodoCollectionException e) {
+        } catch (TodoCollectionException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }
+
     @GetMapping("todos/{id}") // http:localhost:8080/api/v1/todos/{id}
     // gönderilen id değerine sahip todoyu okumak için oluşturuldu
     public ResponseEntity<?> getTodoById(@PathVariable("id") String id) {
-        Optional<TodoDTO> todoOptional = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
-        // eğer to do varsa OK kodu ile birlikte döndürülür.
-        if (todoOptional.isPresent()) {
-            return new ResponseEntity<>(todoOptional.get(), HttpStatus.OK);
-        }
-        // eğer to do yoksa NOT_FOUND kodu ile birlikte belirtilen id değerine sahip bir to do olmadığını belirten bir mesaj döndürülür.
-        else {
-            return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
+        try {
+            return new ResponseEntity<>(todoServices.getTodoById(id), HttpStatus.OK); // gönderilen id değerne sahip to do varsa OK koduyla döndürülecek.
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);// gönderilen id değerne sahip to do yoksa NOT FOUND koduyla döndürülecek.
         }
     }
+
     @PutMapping("update-todo/{id}") // http:localhost:8080/api/v1/update-todo/{id}
     // gönderilen id değerine sahip todoyu güncellemek için oluşturuldu
     public ResponseEntity<?> updateTodoById(@PathVariable("id") String id, @RequestBody TodoDTO todo) {
@@ -80,15 +74,15 @@ public class TodoController {
             return new ResponseEntity<>("Todo not found with id " + id, HttpStatus.NOT_FOUND);
         }
     }
+
     @DeleteMapping("delete-todo/{id}") // http:localhost:8080/api/v1/delete-todo/{id}
     // gönderilen id değerine sahip todoyu silmek için oluşturuldu
-    public ResponseEntity<?> deleteTodoById(@PathVariable String id){
-        try{
+    public ResponseEntity<?> deleteTodoById(@PathVariable String id) {
+        try {
             todoRepository.deleteById(id); // girilem id değerine sahip todoyu silindi
             return new ResponseEntity<>("Successfully deleted", HttpStatus.OK); // todonun silindiğini belirten mesaj OK koduyla gönderildi.
-        }
-        catch (Exception e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // hata oluşması durumunda hata mesajı ve hata kodu dönderilecek
         }
     }
 }

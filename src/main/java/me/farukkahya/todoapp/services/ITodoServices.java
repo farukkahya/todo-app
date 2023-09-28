@@ -4,6 +4,10 @@ import jakarta.validation.ConstraintViolationException;
 import me.farukkahya.todoapp.exception.TodoCollectionException;
 import me.farukkahya.todoapp.models.TodoDTO;
 
+import java.util.List;
+
 public interface ITodoServices {
-    public void createTodo(TodoDTO todo) throws ConstraintViolationException, TodoCollectionException;
+    void createTodo(TodoDTO todo) throws ConstraintViolationException, TodoCollectionException;
+    List<TodoDTO> getAllTodos();
+    TodoDTO getTodoById(String id) throws TodoCollectionException;
 }

@@ -9,7 +9,9 @@ import me.farukkahya.todoapp.services.ITodoServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +28,26 @@ public class TodoServicesImpl implements ITodoServices {
         }else {
             todo.setCreated_at(new Date(System.currentTimeMillis())); // kayıt etmeden önce oluşturulma tarihi eklendi.
             todoRepository.save(todo); // to do kaydedildi.
+        }
+    }
+
+    @Override
+    public List<TodoDTO> getAllTodos() {
+        List<TodoDTO> todos = todoRepository.findAll(); // tüm todoları tutmak için bir TodoDTO listesi oluşturdum.
+        if (!todos.isEmpty()){
+            return todos; // todos boş değil ise dödürülücek
+        }else{
+            return new ArrayList<TodoDTO>(); // eğer todos boş ise boş bit liste döndürülecek.
+        }
+    }
+
+    @Override
+    public TodoDTO getTodoById(String id) throws TodoCollectionException {
+        Optional<TodoDTO> optionalTodo = todoRepository.findById(id); // belirtilen id değerine sahip to do çekilir
+        if (optionalTodo.isEmpty()){
+            throw new TodoCollectionException(TodoCollectionException.NotFoundException(id)); // eğer to do yoksa hata döndürülür.
+        }else {
+            return optionalTodo.get(); // eğer to do varsa döndürülür.
         }
     }
 }
