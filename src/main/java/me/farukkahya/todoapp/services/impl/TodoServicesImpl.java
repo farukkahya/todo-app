@@ -1,6 +1,5 @@
 package me.farukkahya.todoapp.services.impl;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import me.farukkahya.todoapp.exception.TodoCollectionException;
 import me.farukkahya.todoapp.models.TodoDTO;
@@ -62,7 +61,6 @@ public class TodoServicesImpl implements ITodoServices {
             }
             TodoDTO todoToUpdate = todoWithID.get();// güncellenecek to do
             todoToUpdate.setTodo(todo.getTodo());
-            todoToUpdate.setDescription(todo.getDescription());
             todoToUpdate.setCompleted(todo.isCompleted());
             todoToUpdate.setUpdated_at(new Date(System.currentTimeMillis()));
             todoRepository.save(todoToUpdate); // to do güncellendi

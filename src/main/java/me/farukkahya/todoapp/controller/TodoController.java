@@ -10,17 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController // bu anotasyonu bu sınıfın bir rest controller olduğunu belirtmek için kullandım.
 @RequestMapping("/api/v1")
 // bu anotasyonu "http:localhost:8080/api/v1" adresine gelen istekleri bu controller sınıfına iletmek için kullandım.
 public class TodoController {
-    @Autowired // bu anotasyon program çalıştığında kodu analiz edecek ve repository'i gerekli nesne ile eşleştirecek.
-    private ITodoRepository todoRepository; // database işlemlerini yapabilmek için repository nesnesi oluşturdum.
     @Autowired
     private ITodoServices todoServices;
 

@@ -21,8 +21,6 @@ public class TodoDTO { // todoların modeli
     @NotNull(message = "This field cannot be null.")
     private String todo;
     @NotNull(message = "This field cannot be null.")
-    private String description;
-    @NotNull(message = "This field cannot be null.")
     private boolean completed;
     private Date created_at;
     private Date updated_at;
